@@ -4,6 +4,8 @@
 
 [Office  WebSite](https://snapshot.org/)
 
+![](./src/assets/screenshot1.png)
+
 ### Tech
 
 #### Info
@@ -46,3 +48,5 @@ https://docs.snapshot.org/tools/graphql-api
 options: 
 - [relay](https://relay.dev/)
 - [urql](https://formidable.com/open-source/urql/)
+- [graphql-request](https://github.com/jasonkuhrt/graphql-request) , use this!
+

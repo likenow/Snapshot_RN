@@ -6,34 +6,35 @@ import {
   Text,
   TouchableOpacity
 } from 'react-native';
-import { gql, useQuery } from 'urql';
+
+import request from 'graphql-request';
+import { useQuery } from '@tanstack/react-query';
 import { graphql } from '../gql';
 
-const SpacesQueryDocument = graphql(/* GraphQL */ `
+const allSpacesWithVariablesQueryDocument = graphql(/* GraphQL */ `
   query Spaces($first: Int!) {
     spaces(
       first: $first,
       skip: 0,
       orderBy: "created",
       orderDirection: asc
-      ) {
-        id
+    ) {
+      id
+      name
+      about
+      network
+      symbol
+      strategies {
         name
-        about
-        network
-        symbol
-        strategies {
-          name
-          params
-        }
-        admins
-        members
-        filters {
-          minScore
-          onlyMembers
-        }
-        plugins
+        params
       }
+      admins
+      members
+      filters {
+        minScore
+        onlyMembers
+      }
+      plugins
     }
   }
 `);
@@ -42,7 +43,7 @@ const SpacesQueryDocument = graphql(/* GraphQL */ `
 const Item = ({ item, onPress, backgroundColor, textColor, isSelected } : any) => (
   // 禁用点击
   <TouchableOpacity disabled onPress={onPress} style={[styles.item, backgroundColor]}>
-    <Text style={[styles.title, textColor]}>{item.title}</Text>
+    <Text style={[styles.title, textColor]}>{item.id}</Text>
     
   </TouchableOpacity>
 );
@@ -50,22 +51,24 @@ const Item = ({ item, onPress, backgroundColor, textColor, isSelected } : any) =
 export default function Home(props: any) {
   const { colors } = useTheme();
   const [spaceArr, setSpaceArr] = useState<any>(null);
-  
-  // `data` is typed!
-  const [{ data }] = useQuery({
-    query: SpacesQueryDocument as any,
-    variables: { first: 10 },
-  });
-  
+
+  const { data } = useQuery(['films'], async () =>
+    request('https://testnet.snapshot.org/graphql', allSpacesWithVariablesQueryDocument, {
+      first: 10
+    })
+  )
+
+
   useEffect(() => {
     const handleSpaces = async () => {
-      console.debug('✅ [handleSpaces] ');
-      // setSpaceArr(data.spaces);
-
+      if (data) {
+        console.debug('[handleSpaces] ', data.spaces);
+        setSpaceArr(data.spaces);
+      }
     };
     if (!spaceArr) {
-      console.debug('✅ [Home] get data spaceArr = ', spaceArr);
-      // handleSpaces();
+      console.debug('[Home] get data spaceArr = ', spaceArr);
+      handleSpaces();
     }
     
   }, [spaceArr]);
